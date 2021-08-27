@@ -1,0 +1,11 @@
+---
+application:
+  name: "videoencoder"
+  project: "videoencoder"
+  organization: "SamirJanaOfficial"
+routers:
+- name: "videoencoder"
+  routes:
+  - application_name: "videoencoder"
+    paths:
+    - "/*"
