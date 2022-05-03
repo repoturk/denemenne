@@ -15,7 +15,7 @@ def get_codec(filepath, channel='v:0'):
 
 def encode(filepath):
     basefilepath, extension = os.path.splitext(filepath)
-    output_filepath = basefilepath + '.HEVC' + '.mkv'
+    output_filepath = basefilepath + '.240P' + '.mkv'
     assert(output_filepath != filepath)
     if os.path.isfile(output_filepath):
         print('Skipping "{}": file already exists'.format(output_filepath))
@@ -29,22 +29,23 @@ def encode(filepath):
     # Video transcode options
     if video_codec[0] == 'hevc':
         if video_codec[1] == 'hvc1':
-            print('Skipping: already h265 / hvc1')
-            return None
+            #print('Skipping: already h265 / hvc1')
+            #return None
+            video_opts = '-c:v libx265 -crf 28 -preset superfast -vf scale=426:-2 -threads 8'
         else:
             # Copy stream to hvc1
-            video_opts = '-c:v copy -tag:v hvc1'
+            video_opts = '-c:v libx265 -crf 28 -preset superfast -vf scale=426:-2 -threads 8'
     else:
         # Transcode to h265 / hvc1
-        video_opts = '-c:v libx265 -crf 28 -tag:v hvc1 -preset fast -threads 8'
+        video_opts = '-c:v libx265 -crf 28 -preset superfast -vf scale=426:-2 -threads 8'
     # Get the audio channel codec
     audio_codec = get_codec(filepath, channel='a:0')
     if audio_codec == []:
         audio_opts = ''
-    elif audio_codec[0] == 'aac':
-        audio_opts = '-c:a copy'
+    elif audio_codec[0] == 'opus':
+        audio_opts = '-c:a libopus -vbr on -b:a 64k'
     else:
-        audio_opts = '-c:a aac -b:a 128k'
+        audio_opts = '-c:a libopus -vbr on -b:a 64k'
     call(['ffmpeg', '-i', filepath] + video_opts.split() + audio_opts.split() + [output_filepath])
     os.remove(filepath)
     return output_filepath
